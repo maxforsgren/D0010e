@@ -1,0 +1,48 @@
+package simulator;
+
+/**
+ * 
+ * @author Gustav Sjöberg
+ * @author Max Forsgren
+ * @author Sebastian Rydström
+ * @author Erik Persson  
+ *
+ */
+public class Simulator {
+
+	EventQueue queue;
+	SimState state;
+	SimView view;
+	
+	/**
+	 * Constructor for simulator.
+	 * 
+	 * @param state that updates all the states in the program.
+	 * @param queue that keeps track and sorts all the events.
+	 * @param view that will display the simulation flow.
+	 */
+	public Simulator(SimState state, EventQueue queue, SimView view) {
+		this.state = state;
+		this.queue = queue;
+		this.view = view;
+		
+		//this.state.addObserver(this.view); såg att man kunde göra på detta sätt diskutera om vi ska ha så.
+		
+	}
+	
+	public void run() {
+		
+		//getSimStatus nödflagga från storestate som blir false när vi når StopEventet.
+		//Kan alternativt använda att vi kollar om listan är tom eller inte?
+		while(state.getSimStatus()) {
+			
+			//getEvent metod ger nästa korrekta event som ska ges
+			Event event = queue.getNext();
+			
+			//Utför eventet.
+			event.execute();
+		}
+	}
+	
+	
+}
