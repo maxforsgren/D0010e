@@ -1,0 +1,80 @@
+package simulator;
+
+import java.util.ArrayList;
+import java.util.NoSuchElementException;
+
+public class SortSequence {
+
+	private ArrayList<Event> queue = new ArrayList<Event>();
+
+	/**
+	 * checks if the queue is empty.
+	 * 
+	 * @return boolean value false if empty, true otherwise.
+	 */
+	public boolean isEmpty() {
+
+		if (queue.size() == 0) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+	/**
+	 * Adds event to the list,
+	 */
+
+	public void addEvent(Event event) {
+		queue.add(event);
+	}
+
+	/**
+	 * Sorterar instoppade händelser efter beräknad tid och lägger till eventen i
+	 * rätt ordning. Det eventet som är först/har index 0 är nästa.
+	 * 
+	 * Satt return under statement i if satsen så att vi går ut från loopen om en ny placerings
+	 * i arrayen sätts
+	 * OM : det eventet vi ska lägga till är större än alla andra tider lägger vi till det sist.
+	 */
+	public void sortArray(Event event) {
+		for (int i = 0; i < queue.size(); i++) {
+			if (queue.get(i).getEventTime() > event.getEventTime()) {
+				queue.add(i, event);
+				return;
+			}
+
+		}
+		queue.add(event);
+	}
+
+	/**
+	 * returnerar det event som ligger först i kön alltså index 0.
+	 * 
+	 */
+	public Event next() throws NoSuchElementException {
+		if (queue.isEmpty()) {
+			throw new NoSuchElementException();
+		}
+		return queue.get(0);
+
+	}
+
+	/**
+	 * tar bort det event som ligger först i kön, alltså index 0.
+	 */
+	public void remove() throws NoSuchElementException {
+		if (queue.isEmpty()) {
+			throw new NoSuchElementException();
+		} else {
+			queue.remove(0);
+		}
+	}
+	
+	/**
+	 * Rensar listan till tom. tar bort alla events.
+	 */
+	public void clearQueue() {
+		queue.clear();
+	}
+}
