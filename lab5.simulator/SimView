@@ -1,0 +1,25 @@
+package lab5.simulator;
+
+import java.util.Observer;
+import java.util.Observable;
+
+/**
+ * 
+ * @author Gustav Sjöberg
+ * @author Max Forsgren
+ * @author Sebastian Rydström
+ * @author Erik Persson
+ * 
+ * Abstrakt klass som visar resultatet från simulationen med Observer och Observable  
+ *
+ */
+
+public abstract class SimView implements Observer{
+	private SimState state;
+	protected abstract void printParameters();
+	protected abstract void printCourse();
+	protected abstract void printResult();
+	public abstract void update(Observer arg0,Object arg1);
+	
+	
+}
