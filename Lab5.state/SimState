@@ -1,0 +1,18 @@
+package lab5.simulator;
+
+import java.util.Observable;
+
+public abstract class SimState extends Observable{
+	private boolean flag;
+	private double simTime;
+	private long seed;
+	
+	public SimState() {
+		
+	}
+	abstract public void start();
+	abstract public void stop();
+	abstract public double timeElapsed();
+	abstract public boolean stopSim();
+	
+}
