@@ -3,28 +3,68 @@ package lab5.state;
 import java.util.Observable;
 
 import lab5.simulator.SimState;
+import lab5.time.ExponentialRandomStream;
+import lab5.time.UniformRandomStream;
 
 public class StoreState extends SimState {
 	private int maxCustomers,finishedCustomers,missedCustomers;
+	private int oppetTider;
 	private int noCheckouts;
+	private int lambda,lower,upper;
 	private boolean storeOpen = false;
 	private boolean simStatus = true; // simulering startar när objektet skapas
 	private FIFO checkoutLine; // en FIFO som ska representera kön till kassan
 	private double freeTimeCheckout,timeInQueue,simTime;
 	private int cutomersInStore;
 	private long seed;
+	private CreateCustomer kundFabrik;
+	private UniformRandomStream uni1;
+	private UniformRandomStream uni2;
+	private ExponentialRandomStream exp1;
+	private ExponentialRandomStream exp2;
+	private String recentEvent = "Start";
 	
 	//Konstruktor som skapar vårat state
 	
-	public StoreState(int maxCustomers,int noCheckouts) {
+	public StoreState(int maxCustomers,int noCheckouts, long seed, int lambda,int oppetTider
+			,int lower, int upper) {
+		this.oppetTider = oppetTider;
 		this.maxCustomers = maxCustomers;
 		this.noCheckouts = noCheckouts;
 		this.freeTimeCheckout = 0;
 		this.timeInQueue = 0;
 		this.simTime = 0;
-		
-		
+		this.upper = upper;
+		this.lower = lower;
+		kundFabrik = new CreateCustomer();
+		checkoutLine = new FIFO();
+		exp1 = new ExponentialRandomStream(lambda,seed);
+		exp2 = new ExponentialRandomStream(lambda);
+		uni1 = new UniformRandomStream(lower,upper,seed);
+		uni2 = new UniformRandomStream(lower,upper);
 	} 
+	
+		
+	public void uppdateraStatus() {
+		setChanged();
+		notifyObservers();
+	}
+	
+	
+	public String getRecentEvent() {
+		return this.recentEvent;
+	}
+	public void setRecentEvent(String s) {
+		this.recentEvent = s;
+	}
+	public void addToCheckoutLine() {
+		Customer c = kundFabrik.addToCount();
+		checkoutLine.add(c);
+	}
+	public void removeFromCheckoutLine() {
+		checkoutLine.removeFirst();
+	}
+	
 	public boolean getStoreStatus() { //Ger status om butiken är öppen eller inte
 		return this.storeOpen;
 	}
@@ -54,12 +94,12 @@ public class StoreState extends SimState {
 		}
 	}
 	
-	public boolean stopSim() { //Stoppar simulationen
+	public void stopSim() { //Stoppar simulationen
 		this.simStatus = false;
 	}
 	
 	public double getTimeElapsed() { //returnerar den tid som har gått på simulationen
-		return this.timeElapsed();
+		return this.simTime;
 	}
 	
 	public double getFreeCheckoutTime() {
@@ -71,7 +111,18 @@ public class StoreState extends SimState {
 	public int getMaxCustomers() {
 		return this.maxCustomers;
 	}
-	
+	public long getSeed() {
+		return this.seed;
+	}
+	public int getLambda() {
+		return this.lambda;
+	}
+	public 
+	@Override
+	public void stop() {
+		// TODO Auto-generated method stub
+		
+	}
 	
 
 }
