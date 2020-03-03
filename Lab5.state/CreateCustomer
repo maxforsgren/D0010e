@@ -1,0 +1,23 @@
+package lab5.state;
+
+/**
+ * 
+ * @author Gustav Sjöberg
+ * @author Max Forsgren
+ * @author Sebastian Rydström
+ * @author Erik Persson
+ * 
+ * Denna klass skapar en ny kund varje gång koden körs och ger dem ett id.
+ * Första kunden får 0 och nästa 1 osv.
+ *
+ */
+
+public class CreateCustomer {
+	private int countNewCustomerId;
+	public CreateCustomer() {
+		countNewCustomerId=0;
+	}
+	public Customer addToCount() {
+		return new Customer(countNewCustomerId++);
+	}
+}
