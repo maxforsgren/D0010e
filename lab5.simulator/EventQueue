@@ -1,0 +1,54 @@
+package simulator;
+
+/**
+ * 
+ * @author Gustav Sjöberg
+ * @author Max Forsgren
+ * @author Sebastian Rydström
+ * @author Erik Persson  
+ *
+ */
+
+public class EventQueue {
+				
+	SortSequence eventqueue = new SortSequence();
+	
+	/**
+	 * Adds the event to the queue.
+	 * 
+	 * @param event an object that describes an event.
+	 * 
+	 * När ska man kunna lägga till ett event? och när ska det inte gå?
+	 * 1. kolla om tom eller inte.
+	 * 2. Om tom : endast lägga till eventet
+	 * 3. om inte tom : utföra sorteringen och där inne läggs event in i rätt ordning.
+	 * 		
+	 */
+	public void add(Event event) {
+		if(eventqueue.isEmpty()) {
+			eventqueue.addEvent(event);
+		}
+		else {
+			eventqueue.sortArray(event);
+		}
+	}
+	
+	/**
+	 * Gets the next event from the queue.
+	 * 
+	 * @return the event thats first in the queue.
+	 */
+	public Event getNext() {
+		Event e =  eventqueue.next();
+		eventqueue.remove();
+		return e;
+	}
+	
+	/**
+	 * Clear metod till att rensa kön när vi avslutar programmet?
+	 */
+	public void clear() {
+		eventqueue.clearQueue();
+	}
+
+}
