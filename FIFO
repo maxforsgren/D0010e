@@ -1,0 +1,72 @@
+package lab5.state;
+
+import java.util.ArrayList;
+import java.util.NoSuchElementException;
+
+/**
+ * 
+ * @author Gustav Sjöberg
+ * @author Max Forsgren
+ * @author Sebastian Rydström
+ * @author Erik Persson
+ * 
+ * Denna klass lägger till kunder till kundkön, ger första kunden, 
+ * tar bort första kunden när den är klar, ger köns storlek,
+ * kollar om kön är tomm och kan även visa kön.
+ *
+ */
+
+public class FIFO {
+	private ArrayList<Customer> customerQueue;
+	public FIFO() {
+		this.customerQueue = new ArrayList<Customer>();
+
+	}
+	public void add(Customer customer) {
+		customerQueue.add(customer);
+	}
+	public Customer getFirst() throws NoSuchElementException{
+		if(customerQueue.isEmpty()==true) {
+			throw new NoSuchElementException("Kön är tomm");
+		}
+		else {
+			return customerQueue.get(0);
+		}
+		
+	}
+	public Customer removeFirst() throws NoSuchElementException{
+		if(customerQueue.isEmpty()==true) {
+			throw new NoSuchElementException("Kön är tomm");
+		}
+		else {
+			return customerQueue.remove(0);
+		}
+		
+	}
+	public int Size() {
+		return customerQueue.size();
+	}
+	public boolean isEmpty() {
+		if(customerQueue.size()==0) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	public String toString() {
+		String Customers="[";
+		for(int i=0;i<customerQueue.size();i++) {
+			if(i<customerQueue.size()-1) {
+				Customers+=String.valueOf(customerQueue.get(i))+ "," ;
+			}
+			else {
+				Customers+=String.valueOf(customerQueue.get(i))+ "]" ;
+			}
+		}
+		
+		return Customers;
+			
+			
+	}
+}
