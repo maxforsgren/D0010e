@@ -1,0 +1,77 @@
+package lab5.state;
+
+import java.util.Observable;
+
+import lab5.simulator.SimState;
+
+public class StoreState extends SimState {
+	private int maxCustomers,finishedCustomers,missedCustomers;
+	private int noCheckouts;
+	private boolean storeOpen = false;
+	private boolean simStatus = true; // simulering startar när objektet skapas
+	private FIFO checkoutLine; // en FIFO som ska representera kön till kassan
+	private double freeTimeCheckout,timeInQueue,simTime;
+	private int cutomersInStore;
+	private long seed;
+	
+	//Konstruktor som skapar vårat state
+	
+	public StoreState(int maxCustomers,int noCheckouts) {
+		this.maxCustomers = maxCustomers;
+		this.noCheckouts = noCheckouts;
+		this.freeTimeCheckout = 0;
+		this.timeInQueue = 0;
+		this.simTime = 0;
+		
+		
+	} 
+	public boolean getStoreStatus() { //Ger status om butiken är öppen eller inte
+		return this.storeOpen;
+	}
+	
+	public boolean getSimStatus() { //Ger status om simulering är pågåenden eller inte
+		return this.simStatus;
+	}
+	
+	public void start() {
+	}
+	
+	public void openStore() { //Öppnar affären om den är stängd
+		if (this.storeOpen) {
+			System.out.println("Affären är redan öppen");
+		}
+		else {
+			this.storeOpen = true;
+		}
+	}
+	
+	public void closeStore() { //Stänger affären om den är öppen
+		if (this.storeOpen) {
+			this.storeOpen = false;
+		}
+		else {
+			System.out.println("Affären är redan stängd");
+		}
+	}
+	
+	public boolean stopSim() { //Stoppar simulationen
+		this.simStatus = false;
+	}
+	
+	public double getTimeElapsed() { //returnerar den tid som har gått på simulationen
+		return this.timeElapsed();
+	}
+	
+	public double getFreeCheckoutTime() {
+		return this.freeTimeCheckout;
+	}
+	public int getNoCheckouts() {
+		return this.noCheckouts;
+	}
+	public int getMaxCustomers() {
+		return this.maxCustomers;
+	}
+	
+	
+
+}
