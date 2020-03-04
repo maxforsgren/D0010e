@@ -1,0 +1,59 @@
+package event;
+
+import simulator.Event;
+import simulator.EventQueue;
+import state.StoreState;
+
+public class ArrivalEvent extends Event {
+	private double time;
+	//private EventQueue queue;
+	private StoreState state;
+	
+	
+	/**
+	 * constructor for ArrivalEvent.
+	 * 
+	 * @param state the state that will be modified.
+	 * @param queue where new events will be created and placed.
+	 */
+	public ArrivalEvent(StoreState state, EventQueue queue) {
+		this.state = state;
+		this.queue = queue;
+	}
+	
+	public void execute() {
+		//Update state
+		this.time = state.getArrivalTime();
+		
+		//kollar om det är öppet "Om det inte är öppet gör ingenting.
+		if(state.getStoreStatus()); {
+			queue.add(new ArrivalEvent(state, queue));
+			
+			//Kollar om det finns plats, "men fortfarande öppet"
+			if(state.getIsPlace()) {
+				state.newCustomer();
+				state.addCustomerInStore();
+				queue.add(new PickingEvent(state, queue));
+			}
+			//kollar om det är fullt, "men fortfarande öppet"
+			else if(!state.getIsPlace()) {
+				state.addMissedCustomer();
+			}
+		//update for view.
+		state.updateState();
+			
+	}
+
+		
+	}
+	
+	public double getEventTime() {
+		return this.time;
+	}
+	
+	public String getEventname() {
+		return "ArrivalEvent";
+	}
+	
+	
+}
