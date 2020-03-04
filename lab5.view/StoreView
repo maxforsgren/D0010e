@@ -20,21 +20,27 @@ import lab5.state.StoreState;
 
 public class StoreView extends SimView{
 	private StoreState state;
-	private boolean parametersGen=false;
-	private boolean progressHeaderGen=false;	//kollar om förlopp, tid, händelse, kund osv.
-												//har skrivits ut
-	private String result="";
-	private String filePath="";
+	private boolean parametersGen=false;	//kollar paramertrarn har skrivits ut
+	private boolean progressHeaderGen=false;	//kollar om förlopp, tid, händelse, kund osv skrivits ut.
 	
-	public StoreView(String filePath) {
-		this.filePath=filePath;
+	private boolean closedGen=false;	//kollar om stänger raden skrivits ut									
+	private boolean startGen=false;		//kollar om start raden skrivits ut										
+	private String result="";
+	
+	public StoreView() {
 	}
 	@Override
 	public void update(Observable o, Object arg) {
 		StoreState state=(StoreState) o;
 		if(parametersGen==false) {
 			result+=generateParamerters(state);
-			parametersGen=true;
+			
+		}
+		if(state.getSimStatus()==true) {
+			result+=generateProgress(state);
+		}
+		else {
+			result+=generateRes(state);
 		}
 		
 	}
@@ -43,9 +49,10 @@ public class StoreView extends SimView{
 		result+=MessageFormat.format("Antal kassor, N..........: {0} \n", state.getNoCheckouts());
 		result+=MessageFormat.format("Max som ryms, M..........: {0} \n", state.getMaxCustomers());
 		result+=MessageFormat.format("Ankomshastighet, lambda..: {0} \n", state.getLambda());
-		result+=MessageFormat.format("Plocktider, [P_min..Pmax]: [{0}..{1}]\n", state.,state.);
-		result+=MessageFormat.format("Betaltider, [K_min..Kmax]: [{0}..{1}]\n", state.,state.);
+		result+=MessageFormat.format("Plocktider, [P_min..Pmax]: [{0}..{1}]\n", state.getPickingLower(),state.getPickingUpper());
+		result+=MessageFormat.format("Betaltider, [K_min..Kmax]: [{0}..{1}]\n", state.getCheckoutLower(),state.getCheckoutUpper());
 		result+=MessageFormat.format("Frö, f...................: {0} \n", state.getSeed());
+		parametersGen=true;
 		return result;
 	}
 	private String generateProgress(StoreState state) {
@@ -58,12 +65,52 @@ public class StoreView extends SimView{
 			result+=String.format(format, course);
 			progressHeaderGen=true;
 		}
-		if(state.getSimStatus()==true) {
-			Object[] progress= {state.getTimeElapsed(),state.getRecentEvent(),state.,
-					state.getOpenClosed(),}
+		
+		if(startGen==false) {
+			Object[] start= {state.getTimeElapsed(),state.getRecentEvent(),state.emptyString(),
+					state.emptyString(),state.emptyString(),state.emptyString(),state.emptyString(),
+					state.emptyString(),state.emptyString(),state.emptyString(),state.emptyString(),
+					state.emptyString(),state.emptyString()};
+			
+			result+=String.format(format, start);
+			startGen=true;
+		}
+		if(state.getStoreStatus()==false&&closedGen==false) {
+			Object[] closed={state.threeLines(),state.getRecentEvent(),state.getRecentCustomerID(),
+					state.getOpenLetter(),state.getFreeCheckouts(),state.,state.getCustomersInStore(),
+					state.getFinishedCustomers(),state.getMissedCustomer(),state.getTotalNoQueue(),
+					state.,state.getFIFOsize(),state.printFIFO()};
+			result+=String.format(format, closed);
+			closedGen=true;
+		}
+		if(startGen==true&&state.getSimStatus()==true) {
+			Object[] progress= {state.getTimeElapsed(),state.getRecentEvent(),state.getRecentCustomerID(),
+					state.getOpenLetter(),state.getFreeCheckouts(),state.,state.getCustomersInStore(),
+					state.getFinishedCustomers(),state.getMissedCustomer(),state.getTotalNoQueue(),
+					state.,state.getFIFOsize(),state.printFIFO()};
 			result+=String.format(format, progress);
 		}
+		if(state.getTimeElapsed()==999.00) {
+			Object[] stop= {state.getTimeElapsed(),state.getRecentEvent(),state.emptyString(),
+					state.emptyString(),state.emptyString(),state.emptyString(),state.emptyString(),
+					state.emptyString(),state.emptyString(),state.emptyString(),state.emptyString(),
+					state.emptyString(),state.emptyString()};
+			result+=String.format(format, stop);
+		}
 		
+		
+		return result;
+	}
+	private String generateRes(StoreState state) {
+		String result=getHeader("Resultat");
+		result+=MessageFormat.format("1) Av {0} kunder handlade {1} medan {2} missade.\n", 
+				state.getFinishedCustomers()+state.getMissedCustomer(),
+				state.getFinishedCustomers(),state.getMissedCustomer());
+		result+=MessageFormat.format("2) Total tid {0} varit lediga: {1} te.\n "
+				+ "Genomsnittlig ledig kassatid: {2} te (dvs {3}  av tiden från öppning tills sista kunden\n"
+				+ "betalat). \n", state.getNoCheckouts(),state.,state.,state.);
+		result+=MessageFormat.format("3)  Total tid {0} kunder tvingats köa: {1} te. \n"
+				+ "Genomsnittlig kötid:", state.getTotalNoQueue(),state.,state.);
 		return result;
 	}
 	private String getHeader(String string) {
@@ -73,24 +120,16 @@ public class StoreView extends SimView{
 		}
 		return header+"\n";
 	}
-	@Override
-	protected void printParameters() {
-		
-		
-	}
-	@Override
-	protected void printCourse() {
-		
-		
-	}
+	
 	@Override
 	protected void printResult() {
 		System.out.println(result);
 		
 	}
 	@Override
-	public void update(Observer arg0, Object arg1) {
-		
+	public void update(Observer o, Object arg) {
+		// TODO Auto-generated method stub
 		
 	}
+	
 }
