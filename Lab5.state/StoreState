@@ -8,46 +8,129 @@ import lab5.time.UniformRandomStream;
 
 public class StoreState extends SimState {
 	private int maxCustomers,finishedCustomers,missedCustomers;
-	private int oppetTider;
-	private int noCheckouts;
-	private int lambda,lower,upper;
-	private boolean storeOpen = false;
+	private int openingHours;
+	private int noCheckouts, noInCheckout;
+	private int lambda,pickingLower,pickingUpper,checkoutLower,checkoutUpper;
+	private boolean storeOpen = true;
 	private boolean simStatus = true; // simulering startar när objektet skapas
 	private FIFO checkoutLine; // en FIFO som ska representera kön till kassan
 	private double freeTimeCheckout,timeInQueue,simTime;
-	private int cutomersInStore;
+	private int customersInStore;
 	private long seed;
+	private Customer recentCustomer;
 	private CreateCustomer kundFabrik;
-	private UniformRandomStream uni1;
-	private UniformRandomStream uni2;
-	private ExponentialRandomStream exp1;
-	private ExponentialRandomStream exp2;
+	private ExponentialRandomStream ArrivalTimeGenerator1;
+	private ExponentialRandomStream ArrivalTimeGenerator2;
+	private UniformRandomStream PickingTimeGenerator1;
+	private UniformRandomStream PickingTimeGenerator2;
+	private UniformRandomStream CheckoutTimeGenerator1;
+	private UniformRandomStream CheckoutTimeGenerator2;
 	private String recentEvent = "Start";
 	
 	//Konstruktor som skapar vårat state
 	
-	public StoreState(int maxCustomers,int noCheckouts, long seed, int lambda,int oppetTider
-			,int lower, int upper) {
-		this.oppetTider = oppetTider;
+	public StoreState(int maxCustomers,int noCheckouts, long seed, int lambda,int openingHours
+			,int pickingLower, int pickingUpper, int checkoutLower, int checkoutUpper) {
+		this.openingHours = openingHours;
 		this.maxCustomers = maxCustomers;
 		this.noCheckouts = noCheckouts;
 		this.freeTimeCheckout = 0;
 		this.timeInQueue = 0;
 		this.simTime = 0;
-		this.upper = upper;
-		this.lower = lower;
+		this.pickingUpper = pickingUpper;
+		this.pickingLower = pickingLower;
+		this.checkoutLower = checkoutLower;
+		this.checkoutUpper = checkoutUpper;
 		kundFabrik = new CreateCustomer();
 		checkoutLine = new FIFO();
-		exp1 = new ExponentialRandomStream(lambda,seed);
-		exp2 = new ExponentialRandomStream(lambda);
-		uni1 = new UniformRandomStream(lower,upper,seed);
-		uni2 = new UniformRandomStream(lower,upper);
+		ArrivalTimeGenerator1 = new ExponentialRandomStream(lambda,seed);
+		ArrivalTimeGenerator2 = new ExponentialRandomStream(lambda);
+		PickingTimeGenerator1 = new UniformRandomStream(pickingLower,pickingUpper,seed);
+		PickingTimeGenerator2 = new UniformRandomStream(pickingLower,pickingUpper);
+		CheckoutTimeGenerator1 = new UniformRandomStream(checkoutLower,checkoutUpper,seed);
+		CheckoutTimeGenerator2 = new UniformRandomStream(checkoutLower,checkoutUpper);
 	} 
 	
-		
-	public void uppdateraStatus() {
+	public int getPickingLower() {
+		return this.pickingLower;
+	}
+	public int getPickingUpper() {
+		return this.pickingUpper;
+	}
+	public int getCheckoutLower() {
+		return this.checkoutLower;
+	}
+	public int getCheckoutUpper() {
+		return this.checkoutUpper;
+	}
+	
+	
+	public int getFreeCheckouts() {
+		if(noCheckouts - noInCheckout <= 0) {
+			return 0;
+		}
+		else {
+			return noCheckouts - noInCheckout;
+		}
+	}
+	public void addToCheckoutLine() {
+		Customer c = kundFabrik.addToCount();
+		checkoutLine.add(c);
+	}
+	public void removeFromCheckoutLine() {
+		checkoutLine.removeFirst();
+	}
+	public void addCheckoutCustomer() {
+		noInCheckout++;
+	}
+	public void removeCheckoutCustomer() {
+		noInCheckout--;
+	}
+	
+	
+	
+	
+	public void updateStatus() {
 		setChanged();
 		notifyObservers();
+	}
+	
+	
+	public double getArrivalTime() {
+		return this.ArrivalTimeGenerator1.next() + simTime; //exp1 eller exp2 ????
+	}
+	public double getPickingTime() {
+		return this.PickingTimeGenerator1.next() + simTime;
+	}
+	public double getCheckoutTime() {
+		return this.CheckoutTimeGenerator1.next() + simTime;
+	}
+	
+	public void addCustomerInStore() {
+		this.customersInStore++;
+	}
+	public void removeCustomerInStore() {
+		this.customersInStore--;
+	}
+	public int getCustomerInStore() {
+		return this.customersInStore;
+	}
+	
+	public String getOpenLetter() {
+		if(this.storeOpen) {
+			return "Ö";
+		}
+		else {
+			return "S";
+		}
+	}
+	
+	
+	public void setRecentCustomer(Customer c) {
+		this.recentCustomer = c;
+	}
+	public String getRecentCustomerID() {
+		return this.recentCustomer.toString();
 	}
 	
 	
@@ -57,13 +140,7 @@ public class StoreState extends SimState {
 	public void setRecentEvent(String s) {
 		this.recentEvent = s;
 	}
-	public void addToCheckoutLine() {
-		Customer c = kundFabrik.addToCount();
-		checkoutLine.add(c);
-	}
-	public void removeFromCheckoutLine() {
-		checkoutLine.removeFirst();
-	}
+
 	
 	public boolean getStoreStatus() { //Ger status om butiken är öppen eller inte
 		return this.storeOpen;
@@ -105,9 +182,11 @@ public class StoreState extends SimState {
 	public double getFreeCheckoutTime() {
 		return this.freeTimeCheckout;
 	}
+	
 	public int getNoCheckouts() {
 		return this.noCheckouts;
 	}
+	
 	public int getMaxCustomers() {
 		return this.maxCustomers;
 	}
@@ -117,7 +196,6 @@ public class StoreState extends SimState {
 	public int getLambda() {
 		return this.lambda;
 	}
-	public 
 	@Override
 	public void stop() {
 		// TODO Auto-generated method stub
