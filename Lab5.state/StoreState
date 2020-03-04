@@ -15,7 +15,7 @@ public class StoreState extends SimState {
 	private boolean simStatus = true; // simulering startar när objektet skapas
 	private FIFO checkoutLine; // en FIFO som ska representera kön till kassan
 	private double freeTimeCheckout,timeInQueue,simTime;
-	private int customersInStore;
+	private int customersInStore,totalNoQueue;
 	private long seed;
 	private Customer recentCustomer;
 	private CreateCustomer kundFabrik;
@@ -31,6 +31,7 @@ public class StoreState extends SimState {
 	
 	public StoreState(int maxCustomers,int noCheckouts, long seed, int lambda,int openingHours
 			,int pickingLower, int pickingUpper, int checkoutLower, int checkoutUpper) {
+		this.totalNoQueue = 0;
 		this.openingHours = openingHours;
 		this.maxCustomers = maxCustomers;
 		this.noCheckouts = noCheckouts;
@@ -79,15 +80,50 @@ public class StoreState extends SimState {
 	}
 	public void removeFromCheckoutLine() {
 		checkoutLine.removeFirst();
+		
+		
 	}
 	public void addCheckoutCustomer() {
-		noInCheckout++;
+		this.noInCheckout++;
 	}
 	public void removeCheckoutCustomer() {
-		noInCheckout--;
+		this.noInCheckout--;
+	}
+	
+	public void addFinishedCustomers() {
+		this.finishedCustomers++;
+	}
+	public void removeFinishedCustomers() {
+		this.finishedCustomers--;
+	}
+	public int getFinishedCustomers() {
+		return this.finishedCustomers;
 	}
 	
 	
+	public void addMissedCustomer() {
+		this.missedCustomers++;
+	}
+	public int getMissedCustomer() {
+		return this.missedCustomers;
+	}
+	
+	
+	public void addTotalNoQueue() {
+		this.totalNoQueue++;
+	}
+	public int getTotalNoQueue() {
+		return this.totalNoQueue;
+	}
+	
+	public int getFIFOsize() {
+		return this.checkoutLine.Size();
+	}
+	
+	
+	public String printFIFO() {
+		return this.checkoutLine.toString();
+	}
 	
 	
 	public void updateStatus() {
