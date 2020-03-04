@@ -1,0 +1,96 @@
+package lab5.view;
+
+import java.text.MessageFormat;
+import java.util.Observable;
+import java.util.Observer;
+
+import lab5.simulator.SimView;
+import lab5.state.StoreState;
+
+/**
+ * 
+ * @author Gustav Sjöberg
+ * @author Max Forsgren
+ * @author Sebastian Rydström
+ * @author Erik Persson
+ * 
+ * 
+ *
+ */
+
+public class StoreView extends SimView{
+	private StoreState state;
+	private boolean parametersGen=false;
+	private boolean progressHeaderGen=false;	//kollar om förlopp, tid, händelse, kund osv.
+												//har skrivits ut
+	private String result="";
+	private String filePath="";
+	
+	public StoreView(String filePath) {
+		this.filePath=filePath;
+	}
+	@Override
+	public void update(Observable o, Object arg) {
+		StoreState state=(StoreState) o;
+		if(parametersGen==false) {
+			result+=generateParamerters(state);
+			parametersGen=true;
+		}
+		
+	}
+	private String generateParamerters(StoreState state) {
+		String result=getHeader("PARAMETRAR");
+		result+=MessageFormat.format("Antal kassor, N..........: {0} \n", state.getNoCheckouts());
+		result+=MessageFormat.format("Max som ryms, M..........: {0} \n", state.getMaxCustomers());
+		result+=MessageFormat.format("Ankomshastighet, lambda..: {0} \n", state.getLambda());
+		result+=MessageFormat.format("Plocktider, [P_min..Pmax]: [{0}..{1}]\n", state.,state.);
+		result+=MessageFormat.format("Betaltider, [K_min..Kmax]: [{0}..{1}]\n", state.,state.);
+		result+=MessageFormat.format("Frö, f...................: {0} \n", state.getSeed());
+		return result;
+	}
+	private String generateProgress(StoreState state) {
+		String format="%s %3s %6s %9s %12s %15s %18s %21s %24s %27s %30s %33s %36s \n";
+		String result="";
+		if(progressHeaderGen==false) {
+			result+=getHeader("FÖRLOPP");
+			Object[] course= {"Tid", "Händelse", "Kund", "?","led", "ledT",
+					"I", "$", ":-(", "köat", "köT", "köar", "[Kassakö..]" };
+			result+=String.format(format, course);
+			progressHeaderGen=true;
+		}
+		if(state.getSimStatus()==true) {
+			Object[] progress= {state.getTimeElapsed(),state.getRecentEvent(),state.,
+					state.getOpenClosed(),}
+			result+=String.format(format, progress);
+		}
+		
+		return result;
+	}
+	private String getHeader(String string) {
+		String header="\n"+string+"\n";
+		for(int i=0;i<string.length();i++) {
+			header+="=";
+		}
+		return header+"\n";
+	}
+	@Override
+	protected void printParameters() {
+		
+		
+	}
+	@Override
+	protected void printCourse() {
+		
+		
+	}
+	@Override
+	protected void printResult() {
+		System.out.println(result);
+		
+	}
+	@Override
+	public void update(Observer arg0, Object arg1) {
+		
+		
+	}
+}
