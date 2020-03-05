@@ -1,11 +1,11 @@
-package simulator;
+package lab5.simulator;
 
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
 
 public class SortSequence {
 
-	private ArrayList<Event> queue = new ArrayList<Event>();
+	ArrayList<Event> queue = new ArrayList<Event>();
 
 	/**
 	 * checks if the queue is empty.
@@ -15,9 +15,9 @@ public class SortSequence {
 	public boolean isEmpty() {
 
 		if (queue.size() == 0) {
-			return false;
-		} else {
 			return true;
+		} else {
+			return false;
 		}
 	}
 
@@ -26,7 +26,7 @@ public class SortSequence {
 	 */
 
 	public void addEvent(Event event) {
-		queue.add(event);
+		this.queue.add(event);
 	}
 
 	/**
@@ -38,12 +38,16 @@ public class SortSequence {
 	 * OM : det eventet vi ska lägga till är större än alla andra tider lägger vi till det sist.
 	 */
 	public void sortArray(Event event) {
-		for (int i = 0; i < queue.size(); i++) {
+		//System.out.println(this.queue.size());
+		for (int i = 0; i < this.queue.size(); i++) {
+			//System.out.println(this.queue.get(i).getEventTime());
+			//System.out.println(event.getEventTime());
 			if (queue.get(i).getEventTime() > event.getEventTime()) {
+				//System.out.println("Hej på dig");
 				queue.add(i, event);
 				return;
 			}
-
+		
 		}
 		queue.add(event);
 	}
@@ -69,6 +73,10 @@ public class SortSequence {
 		} else {
 			queue.remove(0);
 		}
+	}
+	public Event previous() {
+		
+		return queue.get(1);
 	}
 	
 	/**
