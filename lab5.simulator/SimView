@@ -16,10 +16,9 @@ import java.util.Observable;
 
 public abstract class SimView implements Observer{
 	private SimState state;
-	protected abstract void printParameters();
-	protected abstract void printCourse();
 	protected abstract void printResult();
 	public abstract void update(Observer arg0,Object arg1);
 	
 	
 }
+
