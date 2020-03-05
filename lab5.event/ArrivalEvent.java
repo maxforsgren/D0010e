@@ -1,33 +1,62 @@
 package lab5.event;
 
-import lab5.simulator.*;
-import lab5.random.*;
+import lab5.simulator.Event;
+import lab5.simulator.EventQueue;
+import lab5.state.Customer;
+import lab5.state.StoreState;
 
-public class ArrivalEvent extends Event{
+public class ArrivalEvent extends Event {
+	private double time;
+	//private EventQueue queue;
+	private StoreState state;
+	private Customer c;
 	
-	public ArrivalEvent(double timeToStart) {
-		getTimeToStart();
-	}
 	
 	/**
-	 * Metod som kontrollerar huruvida affären är öppen samt om det finns
-	 * plats för fler kunder. Nya händelser skapas därefter.
+	 * constructor for ArrivalEvent.
 	 * 
+	 * @param state the state that will be modified.
+	 * @param queue where new events will be created and placed.
 	 */
+	public ArrivalEvent(StoreState state, EventQueue queue) {
+		this.state = state;
+		this.eventQueue= queue;
+		this.time = state.getArrivalTime();
+		this.c = state.newCustomer();
+	}
+	
 	public void execute() {
-		if(openingHours == simTime) { // Är öppettider lika med simuleringstid så stänger affären.
-			storeOpen = false;
-			queue.add(New CloseStoreEvent);
-		}else {
-			queue.add(new ArrivalEvent); // Lägger till en ny händelse i kön.
-			queue.sortQueue; // Sorterar kön.
-			if(customersInStore < maxCustomers) {
-				queue.addEvent(new PickingEvent);
-				queue.sortQueue;
-				customersInStore++;	
-			}else {
-				missedCustomers++;
+		//Update state
+		state.updateTime(this.time);
+		state.setRecentEvent("Ankomst  ");
+		state.setRecentCustomer(this.c);
+		
+		
+		if(state.getIsPlace()) {
+			if(state.getStoreStatus()) {
+				state.addCustomerInStore();
+				eventQueue.add((Event) new ArrivalEvent(state, eventQueue));
+				eventQueue.add((Event) new PickingEvent(state, eventQueue,this.c));
+				state.updateCheckQueue(eventQueue);
+				state.updateState();
 			}
+			
+			
+			
+		}
+		else {
+			state.addMissedCustomer();
 		}
 	}
+	
+	public double getEventTime() {
+		System.out.println(this.time);
+		return this.time;
+	}
+	
+	public String getEventname() {
+		return "ArrivalEvent";
+	}
+	
+	
 }
