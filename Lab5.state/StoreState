@@ -10,15 +10,16 @@ public class StoreState extends SimState {
 	private int maxCustomers,finishedCustomers,missedCustomers;
 	private int openingHours;
 	private int noCheckouts, noInCheckout;
-	private int lambda,pickingLower,pickingUpper,checkoutLower,checkoutUpper;
+	private int pickingLower,pickingUpper,checkoutLower,checkoutUpper
+	private double lambda;
 	private boolean storeOpen = true;
 	private boolean simStatus = true; // simulering startar när objektet skapas
-	private FIFO checkoutLine; // en FIFO som ska representera kön till kassan
+	public FIFO checkoutLine; // en FIFO som ska representera kön till kassan
 	private double freeTimeCheckout,timeInQueue,simTime;
 	private int customersInStore,totalNoQueue;
 	private long seed;
 	private Customer recentCustomer;
-	private CreateCustomer kundFabrik;
+	private CreateCustomer customerFactory;
 	private ExponentialRandomStream ArrivalTimeGenerator1;
 	private ExponentialRandomStream ArrivalTimeGenerator2;
 	private UniformRandomStream PickingTimeGenerator1;
@@ -26,10 +27,11 @@ public class StoreState extends SimState {
 	private UniformRandomStream CheckoutTimeGenerator1;
 	private UniformRandomStream CheckoutTimeGenerator2;
 	private String recentEvent = "Start";
+	private double stopTime = 999.00;
 	
 	//Konstruktor som skapar vårat state
 	
-	public StoreState(int maxCustomers,int noCheckouts, long seed, int lambda,int openingHours
+	public StoreState(int maxCustomers,int noCheckouts, long seed, double lambda,int openingHours
 			,int pickingLower, int pickingUpper, int checkoutLower, int checkoutUpper) {
 		this.totalNoQueue = 0;
 		this.openingHours = openingHours;
@@ -38,11 +40,12 @@ public class StoreState extends SimState {
 		this.freeTimeCheckout = 0;
 		this.timeInQueue = 0;
 		this.simTime = 0;
+		this.lambda = lambda;
 		this.pickingUpper = pickingUpper;
 		this.pickingLower = pickingLower;
 		this.checkoutLower = checkoutLower;
 		this.checkoutUpper = checkoutUpper;
-		kundFabrik = new CreateCustomer();
+		customerFactory = new CreateCustomer();
 		checkoutLine = new FIFO();
 		ArrivalTimeGenerator1 = new ExponentialRandomStream(lambda,seed);
 		ArrivalTimeGenerator2 = new ExponentialRandomStream(lambda);
@@ -51,6 +54,14 @@ public class StoreState extends SimState {
 		CheckoutTimeGenerator1 = new UniformRandomStream(checkoutLower,checkoutUpper,seed);
 		CheckoutTimeGenerator2 = new UniformRandomStream(checkoutLower,checkoutUpper);
 	} 
+	
+	public double getStopTime() {
+		return this.stopTime;
+	}
+	
+	public int getOpeningHours() {
+		return this.openingHours;
+	}
 	
 	public int getPickingLower() {
 		return this.pickingLower;
@@ -74,13 +85,16 @@ public class StoreState extends SimState {
 			return noCheckouts - noInCheckout;
 		}
 	}
-	public void addToCheckoutLine() {
-		Customer c = kundFabrik.addToCount();
+	
+	public Customer newCustomer() {
+		return customerFactory.addToCount();
+	}
+	
+	public void addToCheckoutLine(Customer c) {
 		checkoutLine.add(c);
 	}
 	public void removeFromCheckoutLine() {
 		checkoutLine.removeFirst();
-		
 		
 	}
 	public void addCheckoutCustomer() {
@@ -89,12 +103,26 @@ public class StoreState extends SimState {
 	public void removeCheckoutCustomer() {
 		this.noInCheckout--;
 	}
+	public boolean getIsPlace() {
+		if(customersInStore < maxCustomers) {
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean isCheckoutLineEmpty() {
+		if(this.checkoutLine.isEmpty()) {
+			return true;
+		}
+		return false;
+	}
+	
+	public Customer getFirstCheckoutLine() {
+		return this.checkoutLine.getFirst();
+	}
 	
 	public void addFinishedCustomers() {
 		this.finishedCustomers++;
-	}
-	public void removeFinishedCustomers() {
-		this.finishedCustomers--;
 	}
 	public int getFinishedCustomers() {
 		return this.finishedCustomers;
@@ -126,11 +154,16 @@ public class StoreState extends SimState {
 	}
 	
 	
-	public void updateStatus() {
+	public void updateState() {
 		setChanged();
 		notifyObservers();
 	}
-	
+	public String emptyString() {
+		return "";
+	}
+	public String threeLines() {
+		return "---";
+	}
 	
 	public double getArrivalTime() {
 		return this.ArrivalTimeGenerator1.next() + simTime; //exp1 eller exp2 ????
@@ -185,6 +218,9 @@ public class StoreState extends SimState {
 	public boolean getSimStatus() { //Ger status om simulering är pågåenden eller inte
 		return this.simStatus;
 	}
+	public void stopSim() { //Stoppar simulationen
+		this.simStatus = false;
+	}
 	
 	public void start() {
 	}
@@ -207,12 +243,11 @@ public class StoreState extends SimState {
 		}
 	}
 	
-	public void stopSim() { //Stoppar simulationen
-		this.simStatus = false;
-	}
-	
 	public double getTimeElapsed() { //returnerar den tid som har gått på simulationen
 		return this.simTime;
+	}
+	public void updateTime(double t) {
+		this.simTime = t;
 	}
 	
 	public double getFreeCheckoutTime() {
@@ -229,7 +264,7 @@ public class StoreState extends SimState {
 	public long getSeed() {
 		return this.seed;
 	}
-	public int getLambda() {
+	public double getLambda() {
 		return this.lambda;
 	}
 	@Override
