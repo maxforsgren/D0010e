@@ -1,19 +1,17 @@
 package lab5.simulator;
 
 import lab5.event.*;
-import lab5.random.*;
 
-abstract class Event {
+
+public abstract class Event {
 	
-	private double timeToStart;
-	private eventQueue eventQueue;
+	protected double time;
+	protected EventQueue eventQueue;
+	protected SimState state;
+
 	
 	
-	public double getTimeToStart() {
-		timeToStart = uniformRandomStrean() + timeElapsed();
-		return timeToStart;
-	}
-	
+
 	public abstract void execute();
-
+	public abstract double getEventTime();
 }
