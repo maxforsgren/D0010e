@@ -1,4 +1,6 @@
-package simulator;
+package lab5.simulator;
+
+import lab5.state.StoreState;
 
 /**
  * 
@@ -34,7 +36,7 @@ public class Simulator {
 		
 		//getSimStatus nödflagga från storestate som blir false när vi når StopEventet.
 		//Kan alternativt använda att vi kollar om listan är tom eller inte?
-		while(state.getSimStatus()) {
+		while(((StoreState) state).getSimStatus()) {
 			
 			//getEvent metod ger nästa korrekta event som ska ges
 			Event event = queue.getNext();
