@@ -1,0 +1,26 @@
+package lab5.simulator;
+
+import lab5.event.*;
+import lab5.state.StoreState;
+import lab5.view.StoreView;
+
+public class RunSim {
+	
+	public static void main(String[] args) {
+		
+		
+		StoreState state = new StoreState(5,2,(long) 1234,1.0,10.00,
+				0.5,1.0,2.0,3.0);
+		EventQueue eventQueue = new EventQueue();
+		eventQueue.add(new StartEvent(state,eventQueue));
+		eventQueue.add(new CloseStoreEvent(state, eventQueue));
+		eventQueue.add(new StopEvent(state,eventQueue));
+		StoreView storeView = new StoreView();
+		state.addObserver(storeView);
+		Simulator sim = new Simulator(state,eventQueue,storeView);
+		sim.run();
+		
+		
+	}
+
+}
