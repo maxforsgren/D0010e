@@ -1,4 +1,4 @@
-package simulator;
+package lab5.simulator;
 
 /**
  * 
@@ -11,8 +11,19 @@ package simulator;
 
 public class EventQueue {
 				
-	SortSequence eventqueue = new SortSequence();
+	SortSequence eventqueue;
 	
+	public EventQueue() {
+		eventqueue = new SortSequence();
+		
+	}
+	
+	public Event getCurrentEvent() {
+		return eventqueue.next();
+	}
+	public Event getPreviousEvent() {
+		return eventqueue.previous();
+	}
 	/**
 	 * Adds the event to the queue.
 	 * 
@@ -25,10 +36,14 @@ public class EventQueue {
 	 * 		
 	 */
 	public void add(Event event) {
+		//System.out.println("HEj");
+		//System.out.println(eventqueue.queue.size());
 		if(eventqueue.isEmpty()) {
+			//System.out.println("aasd");
 			eventqueue.addEvent(event);
 		}
 		else {
+			//System.out.println("hej");
 			eventqueue.sortArray(event);
 		}
 	}
