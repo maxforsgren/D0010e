@@ -27,30 +27,46 @@ public class ArrivalEvent extends Event {
 	
 	public void execute() {
 		//Update state
+		
 		state.updateTime(this.time);
 		state.setRecentEvent("Ankomst  ");
 		state.setRecentCustomer(this.c);
 		
-		
 		if(state.getIsPlace()) {
 			if(state.getStoreStatus()) {
-				state.addCustomerInStore();
+				
+				
+				
+				if(eventQueue.getQueueSize() > 1) {
+					state.updateCheckQueue(eventQueue);
+				}
 				eventQueue.add((Event) new ArrivalEvent(state, eventQueue));
 				eventQueue.add((Event) new PickingEvent(state, eventQueue,this.c));
-				state.updateCheckQueue(eventQueue);
+				
+				
+				state.updateState();
+				state.addCustomerInStore();
+				state.setRecentTime(this.time);
+				
+			}
+			else {
 				state.updateState();
 			}
 			
 			
 			
 		}
-		else {
-			state.addMissedCustomer();
+		else if(state.getIsPlace() == false) {
+			if(state.getStoreStatus()) {
+				eventQueue.add((Event) new ArrivalEvent(state, eventQueue));
+				state.addMissedCustomer();
+				state.updateState();
+			}
 		}
+		
 	}
 	
 	public double getEventTime() {
-		System.out.println(this.time);
 		return this.time;
 	}
 	
