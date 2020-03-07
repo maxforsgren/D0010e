@@ -19,10 +19,11 @@ public class PaymentEvent extends Event{
 	}
 	
 	public void execute() {
-		
 		state.updateTime(time);
+		state.setLastCheckoutTime(time);
 		state.setRecentCustomer(this.c);
 		state.setRecentEvent("Betalning");
+		
 	
 	//detta blir som en loop först betala och lämna, sedan kollar kassakön
 	//och uppdaterar den, sedan betala och lämna osv.
@@ -31,28 +32,41 @@ public class PaymentEvent extends Event{
 		//1. minskar antalet kunder i snabbköpet.
 		//2. lägger till att en kund har handlat.
 		//3. En kassa blir ledig.
-		state.removeCustomerInStore();		//minska antalet kunder i snabbköpet.		
-		state.addFinishedCustomers();
+				//minska antalet kunder i snabbköpet.		
+		
 		//lägger till kunder som har betalat/handlat.
 		//tar bort en person från kassan "en kassa blir ledig".
-		state.removeCheckoutCustomer();	
+		if(eventQueue.getQueueSize() > 1) {
+			state.updateCheckQueue(eventQueue);
+		}
+			
 		//4. Kollar om kassakön inte är tom
 		//5. Kund som stått längst i kön/först i arrayen.
 		//6. Går till den lediga kassan.
 		//7. Genererar en betalningshändelse för C.
+		
+		
+		
 		if(!state.isCheckoutLineEmpty()) {		
-			System.out.println("Kön är inte tom");//Om kassakön ej är tom.
+			//Om kassakön ej är tom.
 			c1 = state.getFirstCheckoutLine();		//Den som är först i kön går till kassa/betalar.
-			state.removeFromCheckoutLine();			//Minskar kön från första position.
+					//Minskar kön från första position.
 			state.addCheckoutCustomer();			//En kassa blir upptagen.    	
 			eventQueue.add(new PaymentEvent(state, eventQueue, c1));
+			state.updateState();
+			state.removeCheckoutCustomer();
+			state.addFinishedCustomers();
+			state.removeFromCheckoutLine();	
+			state.removeCustomerInStore();
+			state.setRecentTime(this.time);
 		}
-		
-		
-		
-		//Display view
-		state.updateCheckQueue(eventQueue);
-		state.updateState();
+		else {
+			state.updateState();
+			state.removeCheckoutCustomer();
+			state.addFinishedCustomers();
+			state.removeCustomerInStore();
+			state.setRecentTime(this.time);
+		}
 		
 				
 	}
