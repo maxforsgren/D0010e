@@ -1,6 +1,10 @@
 package lab5.simulator;
 
+import lab5.event.CloseStoreEvent;
+import lab5.event.StartEvent;
+import lab5.event.StopEvent;
 import lab5.state.StoreState;
+import lab5.view.StoreView;
 
 /**
  * 
@@ -23,12 +27,17 @@ public class Simulator {
 	 * @param queue that keeps track and sorts all the events.
 	 * @param view that will display the simulation flow.
 	 */
-	public Simulator(SimState state, EventQueue queue, SimView view) {
+	public Simulator(SimState state) {
 		this.state = state;
-		this.queue = queue;
-		this.view = view;
+		this.queue = new EventQueue();
+		this.view = new StoreView();;
 		
-		//this.state.addObserver(this.view); såg att man kunde göra på detta sätt diskutera om vi ska ha så.
+		queue.add(new StartEvent((StoreState)state,queue));
+		queue.add(new CloseStoreEvent((StoreState) state, queue));
+		queue.add(new StopEvent((StoreState) state,queue));
+		
+		//state.addObserver(view);
+		//this.state.addObserver(this.view); //såg att man kunde göra på detta sätt diskutera om vi ska ha så.
 		
 	}
 	
@@ -37,6 +46,16 @@ public class Simulator {
 		//getSimStatus nödflagga från storestate som blir false när vi når StopEventet.
 		//Kan alternativt använda att vi kollar om listan är tom eller inte?
 		while(((StoreState) state).getSimStatus()) {
+			this.state.addObserver(this.view);
+			//getEvent metod ger nästa korrekta event som ska ges
+			Event event = queue.getNext();
+			
+			//Utför eventet.
+			event.execute();
+		}
+	}
+	public SimState run2() {
+		while(((StoreState) state).getSimStatus()) {
 			
 			//getEvent metod ger nästa korrekta event som ska ges
 			Event event = queue.getNext();
@@ -44,6 +63,7 @@ public class Simulator {
 			//Utför eventet.
 			event.execute();
 		}
+		return this.state;
 	}
 	
 	
