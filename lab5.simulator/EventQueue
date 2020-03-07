@@ -58,6 +58,9 @@ public class EventQueue {
 		eventqueue.remove();
 		return e;
 	}
+	public int getQueueSize() {
+		return eventqueue.queue.size();
+	}
 	
 	/**
 	 * Clear metod till att rensa kön när vi avslutar programmet?
