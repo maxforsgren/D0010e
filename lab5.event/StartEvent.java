@@ -32,7 +32,12 @@ public class StartEvent extends Event {
 		// creates the customer arrival.
 		eventQueue.add(new ArrivalEvent(state, eventQueue));
 		
+		//if(eventQueue.getQueueSize() > 2) {
+		//	state.updateCheckQueue(eventQueue);
+		//}
 		state.updateState();
+		
+		
 	}
 
 	public double getEventTime() {
