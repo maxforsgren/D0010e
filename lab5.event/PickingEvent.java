@@ -20,17 +20,30 @@ public class PickingEvent extends Event {
 		state.setRecentCustomer(this.c);
 		state.setRecentEvent("Plock    ");
 		
+		
+		if(eventQueue.getQueueSize() > 1) {
+			state.updateCheckQueue(eventQueue);
+		}
+		
 		if(state.getFreeCheckouts() > 0) {
-			state.addCheckoutCustomer();
+			
 			eventQueue.add(new PaymentEvent(state, eventQueue, this.c));
+			state.updateState();
+			state.addCheckoutCustomer();
 		//Om kassorna är fulla lägger vi till en kund till kassakön.
 		} else {
+			
+			state.updateState();
 			state.addToCheckoutLine(this.c);
 			state.addTotalNoQueue();
 			//Lägg till kunder i FIFO som står i kö.
 		}
-		state.updateCheckQueue(eventQueue);
-		state.updateState();
+		
+		
+		
+		
+		state.setRecentTime(this.time);
+		
 		
 		
 	}
@@ -42,8 +55,5 @@ public class PickingEvent extends Event {
 	}
 
 }
-
-
-
 
 
