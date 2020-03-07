@@ -57,8 +57,8 @@ public class StoreView extends SimView{
 		return result;
 	}
 	private String generateProgress(StoreState state) {
-		String format="%s %2s %3s %7s %3s %8s %6s %5s %4s %5s %8s %3s %14s \n";
-		String format1="%s %10s %7s %4.5s %5s %7s %5s %5s %6s %6s %5s %6s %9s \n";
+		String format="%s %2s %3s %7s %3s %8s %4s %5s %4s %5s %11s %3s %14s \n";
+		String format1="%s %10s %7s %4.5s %5s %5s %5s %5s %6s %6s %6s %8s %9s \n";
 		String result="";
 		if(progressHeaderGen==false) {
 			result+=getHeader("FÖRLOPP");
@@ -85,18 +85,18 @@ public class StoreView extends SimView{
 		}
 		if(state.getRecentEvent()=="Stänger  "&&closedGen==false) {
 			Object[] closed={state.getTimeElapsed(),state.getRecentEvent(),state.threeLines(),
-					state.getOpenLetter(),state.getFreeCheckouts(),state.getFreeCheckoutTime(),state.getCustomerInStore(),
+					state.getOpenLetter(),state.getFreeCheckouts(),state.getCashierTime(),state.getCustomerInStore(),
 					state.getFinishedCustomers(),state.getMissedCustomer(),state.getTotalNoQueue(),
-					state.getTimeZero(),state.getFIFOsize(),state.printFIFO()};
+					state.getQueueTime(),state.getFIFOsize(),state.printFIFO()};
 			result+=String.format(format, closed);
 			closedGen=true;
 		}
 		if(startGen==true&&state.getSimStatus()==true&&state.getRecentEvent()!="Stänger  "&&state.getRecentEvent()!="Stop"
 				&&state.getRecentEvent()!="Start") {
 			Object[] progress= {state.getTimeElapsed(),state.getRecentEvent(),state.getRecentCustomerID(),
-					state.getOpenLetter(),state.getFreeCheckouts(),state.getFreeCheckoutTime(),state.getCustomerInStore(),
+					state.getOpenLetter(),state.getFreeCheckouts(),state.getCashierTime(),state.getCustomerInStore(),
 					state.getFinishedCustomers(),state.getMissedCustomer(),state.getTotalNoQueue(),
-					state.getTimeZero(),state.getFIFOsize(),state.printFIFO()};
+					state.getQueueTime(),state.getFIFOsize(),state.printFIFO()};
 			result+=String.format(format, progress);
 		}
 		
@@ -110,12 +110,12 @@ public class StoreView extends SimView{
 				state.getFinishedCustomers()+state.getMissedCustomer(),
 				state.getFinishedCustomers(),state.getMissedCustomer());
 		result+=MessageFormat.format("2) Total tid {0} kassor varit lediga: {1} te.\n "
-				+ "Genomsnittlig ledig kassatid: {2} te (dvs {3}  av tiden från öppning tills sista kunden\n"
-				+ "betalat). \n", state.getNoCheckouts(),state.getTimeZero(),state.getTimeZero(),
-				state.getTimeZero());
+				+ "Genomsnittlig ledig kassatid: {2} te (dvs {3}%  av tiden från öppning tills sista kunden\n"
+				+ "betalat). \n", state.getNoCheckouts(),state.getCashierTime(),state.getAverageQueueTime(),
+				state.getPrecentage());
 		result+=MessageFormat.format("3) Total tid {0} kunder tvingats köa: {1} te. \n"
-				+ "Genomsnittlig kötid: {2} te.", state.getTotalNoQueue(),state.getTimeZero(),
-				state.getTimeZero());
+				+ "Genomsnittlig kötid: {2} te.", state.getTotalNoQueue(),state.getQueueTime(),
+				state.getAverageQueueTime1());
 		return result;
 	}
 	private String getHeader(String string) {
