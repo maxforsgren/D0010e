@@ -31,14 +31,16 @@ public class CloseStoreEvent extends Event {
 		state.setRecentEvent("Stänger  ");
 		
 		//Stänger butiken
-					
+		if(eventQueue.getQueueSize() > 2) {
+			state.updateCheckQueue(eventQueue);
+		}			
 		
 		
 		//display view - anropa update.
 		state.updateState();
 		//state.changeDummy();
 	
-		
+		state.setRecentTime(this.time);
 		state.closeStore();
 		
 		
