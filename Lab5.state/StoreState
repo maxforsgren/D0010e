@@ -30,8 +30,8 @@ public class StoreState extends SimState {
 	private UniformRandomStream CheckoutTimeGenerator2;
 	private String recentEvent = "Start";
 	private double stopTime = 999;
-	private boolean dummyClosing;
-	private boolean timingFlag = true;
+	private double lastCheckoutTime;
+	private double recentTime;
 
 	
 	//Konstruktor som skapar vårat state
@@ -46,6 +46,7 @@ public class StoreState extends SimState {
 		this.seed = seed; 
 		this.timeInQueue = 0;
 		this.simTime = 0;
+		this.recentTime =0;
 		this.lambda = lambda;
 		this.pickingUpper = pickingUpper;
 		this.pickingLower = pickingLower;
@@ -53,7 +54,6 @@ public class StoreState extends SimState {
 		this.checkoutUpper = checkoutUpper;
 		customerFactory = new CreateCustomer();
 		checkoutLine = new FIFO();
-		dummyClosing = false;
 		ArrivalTimeGenerator1 = new ExponentialRandomStream(lambda,seed);
 		ArrivalTimeGenerator2 = new ExponentialRandomStream(lambda);
 		PickingTimeGenerator1 = new UniformRandomStream(pickingLower,pickingUpper,seed);
@@ -63,15 +63,21 @@ public class StoreState extends SimState {
 		
 
 	} 
-	public void setTimingFlag() {
-		this.timingFlag = false;
+	public void setRecentTime(double d) {
+		this.recentTime = d;
 	}
-	public void changeDummy() {
-		this.dummyClosing= true;
+	public double getRecentTime() {
+		return this.recentTime;
 	}
-	public boolean getDummy() {
-		return this.dummyClosing;
+	public void setLastCheckoutTime(double d) {
+		if(this.lastCheckoutTime < d) {
+			this.lastCheckoutTime = d;
+		}
 	}
+	public double getLastCheckoutTime() {
+		return this.lastCheckoutTime;
+	}
+
 	
 	public double getStopTime() {
 		return this.stopTime;
@@ -145,8 +151,7 @@ public class StoreState extends SimState {
 	public int getFinishedCustomers() {
 		return this.finishedCustomers;
 	}
-	
-	
+		
 	public void addMissedCustomer() {
 		this.missedCustomers++;
 	}
@@ -184,13 +189,13 @@ public class StoreState extends SimState {
 	}
 	
 	public double getArrivalTime() {
-		return this.ArrivalTimeGenerator2.next() + simTime; //exp1 eller exp2 ????
+		return this.ArrivalTimeGenerator1.next() + simTime; //exp1 eller exp2 ????
 	}
 	public double getPickingTime() {
-		return this.PickingTimeGenerator2.next() + simTime;
+		return this.PickingTimeGenerator1.next() + simTime;
 	}
 	public double getCheckoutTime() {
-		return this.CheckoutTimeGenerator2.next() + simTime;
+		return this.CheckoutTimeGenerator1.next() + simTime;
 	}
 	
 	public void addCustomerInStore() {
@@ -217,9 +222,9 @@ public class StoreState extends SimState {
 		this.recentCustomer = c;
 	}
 	public String getRecentCustomerID() {
-		if(customersInStore == 0) {
-			return "";
-		}
+		//if(customersInStore == 0) {
+		//	return "";
+		//}
 		return this.recentCustomer.toString();
 	}
 	
@@ -265,25 +270,7 @@ public class StoreState extends SimState {
 	}
 	
 	public String getTimeElapsed() { //returnerar den tid som har gått på simulationen
-		if(this.simTime == 0) {
-			return "0,00 ";
-		}
-		if(this.simTime < 0.1) {
-			return String.format("%.1g", this.simTime) + " ";
-		}
-		if(this.simTime < 1) {
-			return String.format("%.2g", this.simTime) + " ";
-		}
-		else if(this.simTime < 10) {
-			return String.format("%.3g", this.simTime) + " ";
-		}
-		else if(this.simTime < 100) {
-			return String.format("%.4g", this.simTime);
-		}
-		else if(this.simTime < 1000) {
-			return String.format("%.5g", this.simTime);
-		}
-		return "";
+		return formatOutput(this.simTime);
 	}
 	
 	
@@ -318,22 +305,61 @@ public class StoreState extends SimState {
 		return 0;
 	}
 	public void updateCheckQueue(EventQueue queue) {
-			if(timingFlag) {
+			
 				//Tiden som kassorna är lediga.
-				this.freeTimeCheckout += this.getFreeCheckouts() * (queue.getCurrentEvent().getEventTime() - queue.getPreviousEvent().getEventTime());
+				this.freeTimeCheckout += this.getFreeCheckouts() *
+						(this.simTime - this.getRecentTime());
 				//Kötiden
-				this.timeInQueue += checkoutLine.Size() * (queue.getCurrentEvent().getEventTime() - queue.getPreviousEvent().getEventTime());
-			}
+				this.timeInQueue += checkoutLine.Size() * 
+						(this.simTime - this.getRecentTime());
+			
 	
 			}
-			
-	public double getCashierTime() {
-		return freeTimeCheckout;
+	public String getAverageQueueTime1() {
+		double d = this.timeInQueue/this.totalNoQueue;
+		return formatOutput(d);
 	}
 			
-	public double getQueueTime() {
-		return timeInQueue;
+	public String getCashierTime() {
+		return formatOutput(this.freeTimeCheckout);
 	}
+			
+	public String getQueueTime() {
+		return formatOutput(this.timeInQueue);
 	}
+	public String getAverageQueueTime() {
+		double s = this.freeTimeCheckout/this.noCheckouts;
+		return formatOutput(s);
+	}
+	public String getPrecentage() {
+		double s1 = this.freeTimeCheckout/this.noCheckouts;
+		double s2 = (s1/this.getLastCheckoutTime())*100;
+		return formatOutput(s2);
+		
+	}
+	public String formatOutput(double d) {
+		if(d == 0) {
+			return "0,00 ";
+		}
+		else if(d < 0.1) {
+			return String.format("%.1g", d) + " ";
+		}
+		else if(d < 1) {
+			return String.format("%.2g", d) + " ";
+		}
+		
+		else if(d < 10) {
+			return String.format("%.3g", d) + " ";
+		}
+		else if(d < 100) {
+			return String.format("%.4g", d);
+		}
+		else if(d < 1000) {
+			return String.format("%.5g", d);
+		}
+		return "";
+		
+	}
+}
 
 
