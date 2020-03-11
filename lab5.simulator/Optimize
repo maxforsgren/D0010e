@@ -1,0 +1,84 @@
+package lab5.simulator;
+
+import java.util.Random;
+
+import lab5.event.CloseStoreEvent;
+import lab5.event.StartEvent;
+import lab5.event.StopEvent;
+import lab5.state.StoreState;
+import lab5.view.StoreView;
+
+public class Optimize {
+	
+	/**
+	 * 
+	 * @author Max Fahlström Forsgren
+	 * @author Gustav Sjöberg
+	 * @author Erik Persson
+	 * @author Sebastian Rydström
+	 * 
+	 * En klass som optimerar snabbköpets antal kassor med vissa
+	 * varierande parametrar.
+	 * 
+	 * @param args
+	 */
+	
+	
+	public static void main(String[] args) {
+		//System.out.println(metod2(13));
+		System.out.println("Det högsta minsta antalet kassor är " + metod3(12345));
+		
+		
+	}
+	
+	private static StoreState metod1(int i,long seed) {
+		StoreState state = new StoreState(7,i,seed,3.0,8.00,
+				0.6,0.9,0.35,0.6);
+		Simulator sim = new Simulator(state);
+		StoreState doneState = (StoreState) sim.run2();
+		return doneState;
+	}
+	private static int metod2(long seed) {
+		//System.out.println("Nytt FRÖ");
+		int missed = 1;
+		int j = 1;
+		int i = 0;
+		StoreState state;
+		while(missed > 0 && i < 5) {
+			state =  metod1(j,seed);
+			//System.out.println(state.getMissedCustomer());
+			if(missed == state.getMissedCustomer()) {
+				i++;
+			}
+			else {
+				i = 0;
+			}
+			missed = state.getMissedCustomer();
+			//System.out.println(j);
+			j++;
+		}
+		return j;
+		
+		
+	}
+	private static int metod3(long FRÖ) {
+		int highMinValue = 0;
+		int i = 0;
+		Random s = new Random(FRÖ);
+		while(i < 100) {
+			int k = metod2(s.nextLong());
+			if( k > highMinValue) {
+				//System.out.println("HEj");
+				highMinValue = k;
+				i = 0;
+			}
+			else {
+				//System.out.println("Hej2");
+				i++;
+			}
+		}
+		return highMinValue;
+			
+	}
+
+}
